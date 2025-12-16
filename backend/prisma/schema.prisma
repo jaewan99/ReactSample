@@ -1,0 +1,62 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Comment {
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  noteId    Int
+  Note      Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([noteId])
+  @@index([userId])
+}
+
+model Like {
+  createdAt DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  noteId    Int
+  Note      Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, noteId])
+  @@index([noteId])
+  @@index([userId])
+}
+
+model Note {
+  title     String
+  content   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  id        Int       @id @default(autoincrement())
+  authorId  Int
+  Comment   Comment[]
+  Like      Like[]
+  User      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([authorId])
+}
+
+model User {
+  email     String    @unique
+  password  String
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  id        Int       @id @default(autoincrement())
+  Comment   Comment[]
+  Like      Like[]
+  Note      Note[]
+}
