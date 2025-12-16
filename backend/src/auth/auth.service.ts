@@ -1,18 +1,23 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
+import * as bcrypt from 'bcrypt';
+import { AuthDto } from 'src/dto/auth.dto';
+import { RegisterDto } from 'src/dto/register.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
-type AuthInput = { name: string; password: string };
 type SignInData = { id: number; name: string };
 type AuthResult = { accessToken: string; id: number; name: string };
+
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UsersService,
     private readonly jwtService: JwtService,
+    private readonly prisma: PrismaService,
   ) {}
 
-  async authenticate(input: AuthInput): Promise<AuthResult> {
+  async authenticate(input: AuthDto): Promise<AuthResult> {
     const user = await this.validateUser(input);
     if (!user) {
       throw new UnauthorizedException();
@@ -21,9 +26,9 @@ export class AuthService {
   }
 
   // 유저 input이 db에 저장되어있는지 확인
-  async validateUser(input: AuthInput): Promise<SignInData | null> {
+  async validateUser(input: AuthDto): Promise<SignInData | null> {
     const user = await this.userService.findUserByName(input.name);
-    if (user && user.password === input.password) {
+    if (user && (await bcrypt.compare(input.password, user.password))) {
       return {
         id: user.id,
         name: user.name,
@@ -39,5 +44,20 @@ export class AuthService {
     };
     const accessToken = await this.jwtService.signAsync(tokenPayload);
     return { accessToken, id: user.id, name: user.name };
+  }
+
+  async register(input: RegisterDto) {
+    const hashedPassword = await bcrypt.hash(input.password, 10);
+    const user = await this.prisma.user.create({
+      data: {
+        name: input.name,
+        email: input.email,
+        password: hashedPassword,
+      },
+    });
+    if (!user) {
+      throw new Error('Error in creating new user.');
+    }
+    return this.signIn({ id: user.id, name: user.name });
   }
 }

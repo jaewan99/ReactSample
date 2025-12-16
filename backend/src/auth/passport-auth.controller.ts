@@ -15,6 +15,7 @@ import { PassportJwtAuthGuard } from './guard/passport-jwt.guard';
 @Controller('passport-auth')
 export class PassportAuthController {
   constructor(private readonly authService: AuthService) {}
+
   @HttpCode(HttpStatus.OK)
   @Post('login')
   @UseGuards(PassportLocalGuard)
