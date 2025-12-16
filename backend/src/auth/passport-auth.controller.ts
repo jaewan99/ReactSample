@@ -8,21 +8,22 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
+import { PassportLocalGuard } from './guard/passport-local.guard';
 import { AuthService } from './auth.service';
-import { AuthGuard } from './guard/auth.guard';
+import { PassportJwtAuthGuard } from './guard/passport-jwt.guard';
 
-@Controller('auth')
-export class AuthController {
+@Controller('passport-auth')
+export class PassportAuthController {
   constructor(private readonly authService: AuthService) {}
-
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  login(@Body() input: { name: string; password: string }) {
-    return this.authService.authenticate(input);
+  @UseGuards(PassportLocalGuard)
+  login(@Body() request) {
+    return this.authService.signIn(request);
   }
 
-  @UseGuards(AuthGuard)
   @Get('me')
+  @UseGuards(PassportJwtAuthGuard)
   getUserInfo(@Request() request) {
     return request.user;
   }
