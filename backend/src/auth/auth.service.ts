@@ -2,8 +2,8 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
-import { AuthDto } from 'src/dto/auth.dto';
-import { RegisterDto } from 'src/dto/register.dto';
+import { AuthDto } from 'src/auth/dto/auth.dto';
+import { RegisterDto } from 'src/auth/dto/register.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 type SignInData = { id: number; name: string };

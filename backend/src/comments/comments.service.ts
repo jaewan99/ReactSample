@@ -21,4 +21,11 @@ export class CommentsService {
   async delete(id: number) {
     return this.prisma.comment.delete({ where: { id } });
   }
+
+  async update(id: number, content: string) {
+    return this.prisma.comment.update({
+      where: { id },
+      data: { content },
+    });
+  }
 }

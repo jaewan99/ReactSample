@@ -31,6 +31,8 @@ export class NotesService {
     return this.prisma.note.findMany({
       include: {
         User: true,
+        Comment: true,
+        Like: true,
       },
       orderBy: {
         createdAt: 'desc',
@@ -41,6 +43,11 @@ export class NotesService {
   async findNotesByAuthor(authorId: number): Promise<Note[]> {
     return this.prisma.note.findMany({
       where: { authorId },
+      include: {
+        User: true,
+        Comment: true,
+        Like: true,
+      },
       orderBy: {
         createdAt: 'desc',
       },

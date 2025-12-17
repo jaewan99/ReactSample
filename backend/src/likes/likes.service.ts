@@ -12,11 +12,14 @@ export class LikesService {
 
     if (existing) {
       await this.prisma.like.delete({ where: { id: existing.id } });
-      return { liked: false };
+    } else {
+      await this.prisma.like.create({ data: { noteId, userId } });
     }
 
-    await this.prisma.like.create({ data: { noteId, userId } });
-    return { liked: true };
+    // Get updated count
+    const count = await this.prisma.like.count({ where: { noteId } });
+
+    return { liked: !existing, count };
   }
 
   async countByNote(noteId: number) {
