@@ -3,9 +3,11 @@
 
 import NoteCard from "@/components/notes/note-cards";
 import NoteDetailDialog from "@/components/notes/note-detail-dialog";
+import EditNoteModal from "@/components/notes/edit-note-modal";
 import { useNotes } from "@/components/notes/use-notes";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNotesRefresh } from "@/components/providers/notes-refresh-provider";
 
 export default function HomePage() {
   const {
@@ -13,12 +15,21 @@ export default function HomePage() {
     selectedNote,
     isDialogOpen,
     setIsDialogOpen,
+    editingNote,
+    isEditModalOpen,
+    setIsEditModalOpen,
     handleCardClick,
     handleLike,
+    handleLikeFromDialog,
+    handleCommentChangeFromDialog,
+    handleEdit,
+    handleDelete,
     currentPage,
     totalPages,
     goToPage,
   } = useNotes();
+
+  const { triggerRefresh } = useNotesRefresh();
 
   return (
     <>
@@ -30,6 +41,8 @@ export default function HomePage() {
               note={note}
               onCardClick={handleCardClick}
               onLike={handleLike}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
             />
           ))}
         </div>
@@ -66,6 +79,15 @@ export default function HomePage() {
         note={selectedNote}
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
+        onLike={handleLikeFromDialog}
+        onCommentChange={handleCommentChangeFromDialog}
+      />
+
+      <EditNoteModal
+        note={editingNote}
+        isOpen={isEditModalOpen}
+        onOpenChange={setIsEditModalOpen}
+        onNoteUpdated={triggerRefresh}
       />
     </>
   );

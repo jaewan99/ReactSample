@@ -1,15 +1,31 @@
 // components/notes/note-card.tsx
 "use client";
 
-import { MessageCircle, Heart } from "lucide-react";
+import { MessageCircle, Heart, MoreVertical, Edit, Trash2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/lib/auth-context";
 
 interface NoteCardProps {
   note: any;
   onCardClick: (note: any) => void;
   onLike: (noteId: number, e: React.MouseEvent) => void;
+  onEdit?: (note: any, e: React.MouseEvent) => void;
+  onDelete?: (noteId: number, e: React.MouseEvent) => void;
 }
 
-export default function NoteCard({ note, onCardClick, onLike }: NoteCardProps) {
+export default function NoteCard({
+  note,
+  onCardClick,
+  onLike,
+  onEdit,
+  onDelete,
+}: NoteCardProps) {
+  const { currentUserId, isLoggedIn } = useAuth();
   const getSize = (note: any) => {
     const titleLength = note.title.length;
     const contentLength = note.content.length;
@@ -34,8 +50,45 @@ export default function NoteCard({ note, onCardClick, onLike }: NoteCardProps) {
       onClick={() => onCardClick(note)}
       className={`${getSize(
         note
-      )} border rounded-lg p-4 hover:shadow-lg transition bg-white overflow-hidden flex flex-col cursor-pointer`}
+      )} border rounded-lg p-4 hover:shadow-lg transition bg-white overflow-hidden flex flex-col cursor-pointer relative`}
     >
+      {/* Three-dot menu - only show if user owns the note */}
+      {isLoggedIn && currentUserId === note.authorId && (
+        <div className="absolute top-2 right-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                onClick={(e) => e.stopPropagation()}
+                className="text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-100"
+              >
+                <MoreVertical size={16} />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onEdit) onEdit(note, e as any);
+                }}
+              >
+                <Edit size={14} className="mr-2" />
+                수정
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onDelete) onDelete(note.id, e as any);
+                }}
+                className="text-red-600"
+              >
+                <Trash2 size={14} className="mr-2" />
+                삭제
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
+
       <h2 className="font-bold mb-2">{note.title}</h2>
       <p className="text-gray-600 text-sm flex-1">{note.content}</p>
 

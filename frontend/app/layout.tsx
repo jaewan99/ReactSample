@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/navbar/navbar";
 import { AuthProvider } from "@/lib/auth-context";
 import GlobalLoginModal from "@/components/auth/global-login-modal";
+import { NotesRefreshProvider } from "@/components/providers/notes-refresh-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,9 +30,11 @@ export default function RootLayout({
     <html lang="en" className="light">
       <body>
         <AuthProvider>
-          <Navbar />
-          {children}
-          <GlobalLoginModal />
+          <NotesRefreshProvider>
+            <Navbar />
+            {children}
+            <GlobalLoginModal />
+          </NotesRefreshProvider>
         </AuthProvider>
       </body>
     </html>

@@ -8,9 +8,11 @@ import RegisterModal from "./register-modal";
 import CreateNoteModal from "./create-note-modal";
 import ProfileModal from "./profile-modal";
 import { useAuth } from "@/lib/auth-context";
+import { useNotesRefresh } from "@/components/providers/notes-refresh-provider";
 
 export default function Navbar() {
   const { isLoggedIn, logout } = useAuth();
+  const { triggerRefresh } = useNotesRefresh();
 
   return (
     <nav className="border-b bg-white">
@@ -22,7 +24,7 @@ export default function Navbar() {
         <div className="flex gap-3">
           {isLoggedIn ? (
             <>
-              <CreateNoteModal />
+              <CreateNoteModal onNoteCreated={triggerRefresh} />
               <ProfileModal />
               <Button variant="ghost" onClick={logout}>
                 로그아웃
